@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Digital Canvas Color Manager - a colorful canvas app demonstrating stack-based undo history.">
+  <title>Digital Canvas Color Manager</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--ink:#20213b;--muted:#85869c;--purple:#7357ff;--line:#ececf4;--surface:#fff;--bg:#f7f7fc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}.background-orb{position:fixed;border-radius:50%;filter:blur(2px);opacity:.35;pointer-events:none;z-index:-1}.orb-one{width:360px;height:360px;background:#e2dcff;top:80px;left:-200px}.orb-two{width:300px;height:300px;background:#ffe2ed;right:-140px;top:420px}.topbar{height:76px;padding:0 max(calc((100% - 1120px)/2),28px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eaeaf3;background:rgba(255,255,255,.72);backdrop-filter:blur(14px)}.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.8px}.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#7357ff,#ad72ff);color:white;font-size:23px;box-shadow:0 7px 18px #7357ff44}.brand-light{color:var(--purple)}.project-tag,.mini-label,.muted-label{font-size:10px;letter-spacing:1.7px;font-weight:700;color:#9292a8}.page{max-width:1120px;margin:0 auto;padding:56px 28px 26px}.intro{max-width:650px;margin-bottom:35px;animation:rise .65s ease both}.eyebrow{font-size:10px;font-weight:700;letter-spacing:1.8px;color:var(--purple);display:flex;align-items:center;gap:9px}.pulse{width:7px;height:7px;border-radius:50%;background:#22c997;box-shadow:0 0 0 5px #22c99720}h1,h2,p{margin-top:0}h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(42px,6vw,66px);line-height:1.02;letter-spacing:-3.8px;margin:19px 0 16px;font-weight:700}h1 span{background:linear-gradient(100deg,#7357ff,#e45ca6);-webkit-background-clip:text;background-clip:text;color:transparent}.intro-copy{color:#777990;max-width:470px;line-height:1.75;font-size:14px}.intro-stats{display:flex;gap:30px;margin-top:28px}.intro-stats div{display:flex;flex-direction:column;gap:4px}.intro-stats strong{font-family:'Space Grotesk',sans-serif;font-size:19px}.intro-stats span{font-size:11px;color:var(--muted)}.workspace{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.85fr);gap:20px;align-items:stretch}.canvas-card,.controls-card{background:var(--surface);border:1px solid #ececf4;border-radius:22px;box-shadow:0 15px 50px #25234a0a;overflow:hidden;animation:rise .7s ease both}.controls-card{padding:25px;animation-delay:.08s}.card-top{height:51px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;justify-content:space-between;padding:0 20px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.dot-red{background:#ff6b79}.dot-yellow{background:#ffd166}.dot-green{background:#28d9a0}.window-label{font-size:9px;font-weight:700;letter-spacing:1.6px;color:#a0a0b3}.live-indicator{font-size:9px;letter-spacing:1px;color:#21b98d;font-weight:700}.canvas-preview{height:350px;background:#7357ff;display:grid;place-items:center;position:relative;overflow:hidden;transition:background .35s ease}.canvas-preview:before,.canvas-preview:after{content:"";position:absolute;width:240px;height:240px;border:1px solid #ffffff40;border-radius:50%;animation:float 7s ease-in-out infinite}.canvas-preview:after{width:310px;height:310px;animation-delay:-3s}.canvas-art{position:relative;width:260px;height:220px;display:grid;place-items:center}.art-circle{position:absolute;width:142px;height:142px;border-radius:50%;background:#ffffffc9;left:10px;top:0;mix-blend-mode:screen;animation:float 5s ease-in-out infinite}.art-square{position:absolute;width:125px;height:125px;background:#ffb9d4;right:5px;bottom:5px;transform:rotate(18deg);border-radius:24px;mix-blend-mode:screen;animation:float 6s ease-in-out infinite reverse}.art-line{position:absolute;width:205px;height:4px;background:#fff;transform:rotate(-35deg);opacity:.85}.canvas-caption{position:absolute;bottom:12px;left:35px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;letter-spacing:3px;color:white;line-height:1.25;text-shadow:0 2px 10px #0002}.canvas-footer{display:flex;align-items:center;justify-content:space-between;padding:19px 23px}.canvas-footer>div:first-child{display:flex;flex-direction:column;gap:6px}.canvas-footer strong{font-family:'Space Grotesk',sans-serif;font-size:19px;letter-spacing:1px}.current-swatch{width:38px;height:38px;border-radius:13px;background:#7357ff;box-shadow:inset 0 0 0 1px #0000000d,0 5px 14px #7357ff30}.section-heading,.history-title{display:flex;align-items:flex-start;justify-content:space-between}.section-heading h2,.history-title h2{font-family:'Space Grotesk',sans-serif;font-size:23px;letter-spacing:-.8px;margin:7px 0 0}.sparkle{font-size:28px;color:#ffad65}.color-picker-wrap{margin-top:23px;display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:14px;cursor:pointer;transition:border .2s,transform .2s}.color-picker-wrap:hover{border-color:#c5b9ff;transform:translateY(-1px)}.picker-icon{width:37px;height:37px;border-radius:11px;display:grid;place-items:center;background:#f0edff;color:var(--purple);font-size:20px}.color-picker-wrap>span:nth-child(2){display:flex;flex-direction:column;gap:4px;flex:1}.color-picker-wrap strong{font-size:12px}.color-picker-wrap small{font-size:10px;color:var(--muted)}input[type=color]{width:35px;height:35px;padding:0;border:0;background:transparent;cursor:pointer}input[type=color]::-webkit-color-swatch-wrapper{padding:0}input[type=color]::-webkit-color-swatch{border:3px solid white;border-radius:10px;box-shadow:0 0 0 1px #e7e6ef}.hex-row{margin-top:19px}.hex-row>label,.palette-heading{font-size:9px;letter-spacing:1.3px;color:#9b9bae;font-weight:700}.hex-input-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;border:1px solid var(--line);border-radius:11px;padding:5px 5px 5px 12px}.hex-input-wrap>span{font-size:13px;color:#a0a0b3}.hex-input-wrap input{width:100%;min-width:0;border:0;outline:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:var(--ink);background:transparent;text-transform:uppercase}.apply-btn{background:var(--ink);color:white;border:0;border-radius:8px;padding:10px 12px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform .2s,background .2s}.apply-btn:hover{background:var(--purple);transform:translateY(-1px)}.palette-heading{display:flex;justify-content:space-between;margin-top:22px}.palette-heading span+span{font-weight:500;letter-spacing:0;color:#b1b1c0}.palette{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-top:11px}.palette-swatch{height:29px;border:0;border-radius:9px;background:var(--swatch);cursor:pointer;transition:transform .18s,box-shadow .18s;box-shadow:inset 0 0 0 1px #00000008}.palette-swatch:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 5px 12px color-mix(in srgb,var(--swatch),transparent 55%)}.palette-swatch.active{outline:2px solid white;box-shadow:0 0 0 2px var(--swatch)}.action-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:21px}.secondary-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:12px 10px;color:var(--ink);font-size:16px;cursor:pointer;transition:all .2s}.secondary-btn span{font-size:11px;font-weight:700;margin-left:5px}.secondary-btn:hover{border-color:#c5b9ff;background:#faf9ff;color:var(--purple)}.secondary-btn:disabled{opacity:.4;cursor:not-allowed}.stack-info{display:flex;align-items:center;gap:10px;border-top:1px solid #f0f0f6;margin-top:21px;padding-top:18px}.stack-icon{width:35px;height:35px;display:grid;place-items:center;background:#f1efff;color:var(--purple);border-radius:10px;font-size:18px}.stack-info>div:nth-child(2){display:flex;flex-direction:column;gap:4px;flex:1}.stack-info strong{font-size:11px}.stack-info small{font-size:10px;color:var(--muted)}.stack-info>span{font-size:10px;color:#8d8da2;font-weight:700}.toast{min-height:15px;margin-top:10px;font-size:10px;color:var(--purple)}.history-section{margin-top:38px;animation:rise .8s ease both}.history-note{font-size:10px;color:#9b9bae;margin-top:8px}.history-list{display:flex;gap:10px;overflow-x:auto;padding:17px 2px 8px}.history-item{min-width:108px;flex:1;background:white;border:1px solid #ececf4;border-radius:13px;padding:10px;display:flex;flex-direction:column;gap:9px;animation:pop .25s ease both}.history-color{height:50px;border-radius:8px;background:var(--swatch)}.history-item strong{font-family:'Space Grotesk',sans-serif;font-size:11px}.history-item small{font-size:9px;color:#9b9bae}.history-empty{color:#9292a8;font-size:12px;padding:20px 0}footer{display:flex;align-items:center;gap:8px;border-top:1px solid #e9e9f2;margin-top:35px;padding-top:20px;color:#8e8ea3;font-size:10px}.footer-mark{font-size:19px;color:var(--purple)}.footer-right{margin-left:auto;font-size:9px;letter-spacing:1px}@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-10px) rotate(5deg)}}@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}@media(max-width:800px){.workspace{grid-template-columns:1fr}.canvas-preview{height:300px}.controls-card{padding:22px}.page{padding-top:38px}}@media(max-width:500px){.topbar{padding:0 18px}.project-tag{font-size:8px;letter-spacing:.7px}.page{padding:32px 16px 20px}h1{letter-spacing:-2.5px}.intro-stats{gap:19px}.intro-stats strong{font-size:17px}.canvas-preview{height:270px}.palette{gap:6px}.palette-swatch{height:26px}.footer-right{display:none}.history-item{min-width:90px}}
+
+  </style>
+</head>
+<body>
+  <div class="background-orb orb-one"></div>
+  <div class="background-orb orb-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">◈</span><span>Canvas<span class="brand-light">Color</span></span></a>
+    <span class="project-tag">DSA MICRO PROJECT · STACK</span>
+  </header>
+
+  <main class="page">
+    <section class="intro">
+      <div class="eyebrow"><span class="pulse"></span> YOUR CREATIVE PLAYGROUND</div>
+      <h1>Every shade has<br><span>a story.</span></h1>
+      <p class="intro-copy">Explore colours, build your palette, and travel back through your design history — one stack at a time.</p>
+      <div class="intro-stats">
+        <div><strong id="historyCount">1</strong><span>Saved states</span></div>
+        <div><strong>O(1)</strong><span>Stack operations</span></div>
+        <div><strong>LIFO</strong><span>Undo logic</span></div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="canvas-card">
+        <div class="card-top"><div><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div><span class="window-label">LIVE CANVAS</span><span class="live-indicator">● LIVE</span></div>
+        <div id="canvasPreview" class="canvas-preview">
+          <div class="canvas-art">
+            <div class="art-circle"></div><div class="art-square"></div><div class="art-line"></div>
+            <span class="canvas-caption">MAKE SOMETHING<br>COLOURFUL.</span>
+          </div>
+        </div>
+        <div class="canvas-footer"><div><span class="muted-label">ACTIVE COLOUR</span><strong id="currentHex">#7357FF</strong></div><div id="currentSwatch" class="current-swatch"></div></div>
+      </div>
+
+      <aside class="controls-card">
+        <div class="section-heading"><div><span class="mini-label">01 / COLOUR LAB</span><h2>Pick your shade</h2></div><span class="sparkle">✳</span></div>
+        <label class="color-picker-wrap" for="colorPicker"><span class="picker-icon">✦</span><span><strong>Custom colour</strong><small>Choose any shade you like</small></span><input type="color" id="colorPicker" value="#7357ff" aria-label="Choose a custom color"></label>
+        <div class="hex-row"><label for="hexInput">HEX CODE</label><div class="hex-input-wrap"><span>#</span><input id="hexInput" maxlength="6" value="7357FF" autocomplete="off"><button id="applyHex" class="apply-btn">Apply ↗</button></div></div>
+        <div class="palette-heading"><span>QUICK PALETTE</span><span>8 colours</span></div>
+        <div class="palette" id="palette">
+          <button class="palette-swatch" data-color="#7357FF" style="--swatch:#7357FF" aria-label="Purple"></button>
+          <button class="palette-swatch" data-color="#FF5D8F" style="--swatch:#FF5D8F" aria-label="Pink"></button>
+          <button class="palette-swatch" data-color="#FF8A3D" style="--swatch:#FF8A3D" aria-label="Orange"></button>
+          <button class="palette-swatch" data-color="#FFD166" style="--swatch:#FFD166" aria-label="Yellow"></button>
+          <button class="palette-swatch" data-color="#06D6A0" style="--swatch:#06D6A0" aria-label="Green"></button>
+          <button class="palette-swatch" data-color="#27B8D1" style="--swatch:#27B8D1" aria-label="Cyan"></button>
+          <button class="palette-swatch" data-color="#3D5AFE" style="--swatch:#3D5AFE" aria-label="Blue"></button>
+          <button class="palette-swatch" data-color="#20243A" style="--swatch:#20243A" aria-label="Dark navy"></button>
+        </div>
+        <div class="action-row"><button id="undoBtn" class="secondary-btn">↶ <span>Undo last</span></button><button id="resetBtn" class="secondary-btn">⟲ <span>Reset</span></button></div>
+        <div class="stack-info"><div class="stack-icon">▤</div><div><strong>Stack history</strong><small>Last colour in, first colour out</small></div><span id="stackSize">1 / 10</span></div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </aside>
+    </section>
+
+    <section class="history-section">
+      <div class="history-title"><div><span class="mini-label">02 / YOUR JOURNEY</span><h2>Colour history</h2></div><span class="history-note">Most recent first ↓</span></div>
+      <div id="historyList" class="history-list"></div>
+    </section>
+    <footer><span class="footer-mark">◈</span><span>Digital Canvas Color Manager</span><span class="footer-right">BUILT WITH A STACK · MADE FOR CREATIVITY</span></footer>
+  </main>
+  <script>
+const MAX_HISTORY = 10;
+const BASE_COLOR = "#7357FF";
+let colorStack = [BASE_COLOR];
+
+const canvasPreview = document.getElementById("canvasPreview");
+const currentHex = document.getElementById("currentHex");
+const currentSwatch = document.getElementById("currentSwatch");
+const colorPicker = document.getElementById("colorPicker");
+const hexInput = document.getElementById("hexInput");
+const applyHex = document.getElementById("applyHex");
+const undoBtn = document.getElementById("undoBtn");
+const resetBtn = document.getElementById("resetBtn");
+const stackSize = document.getElementById("stackSize");
+const historyCount = document.getElementById("historyCount");
+const historyList = document.getElementById("historyList");
+const toast = document.getElementById("toast");
+
+function normalizeHex(value) {
+  let hex = value.trim().replace(/^#/, "");
+  if (/^[0-9a-fA-F]{3}$/.test(hex)) hex = hex.split("").map(ch => ch + ch).join("");
+  return /^[0-9a-fA-F]{6}$/.test(hex) ? "#" + hex.toUpperCase() : null;
+}
+
+function showMessage(message, isError = false) {
+  toast.textContent = message;
+  toast.style.color = isError ? "#d84b67" : "#7357ff";
+}
+
+function applyColor(color) {
+  const normalized = normalizeHex(color);
+  if (!normalized) {
+    showMessage("Please enter a valid 3- or 6-digit HEX code.", true);
+    return;
+  }
+  if (colorStack.length >= MAX_HISTORY) {
+    showMessage("Stack is full! Undo a colour before adding another.", true);
+    return;
+  }
+  colorStack.push(normalized);
+  render();
+  showMessage("Colour applied successfully!");
+}
+
+function undoColor() {
+  if (colorStack.length <= 1) {
+    showMessage("You're at the base colour. Nothing to undo.", true);
+    return;
+  }
+  const removed = colorStack.pop();
+  render();
+  showMessage("Undo complete — removed " + removed + ".");
+}
+
+function resetColors() {
+  colorStack = [BASE_COLOR];
+  render();
+  showMessage("Canvas reset to the base colour.");
+}
+
+function render() {
+  const activeColor = colorStack[colorStack.length - 1];
+  canvasPreview.style.backgroundColor = activeColor;
+  currentHex.textContent = activeColor;
+  currentSwatch.style.backgroundColor = activeColor;
+  colorPicker.value = activeColor;
+  hexInput.value = activeColor.slice(1);
+  stackSize.textContent = `${colorStack.length} / ${MAX_HISTORY}`;
+  historyCount.textContent = colorStack.length;
+  undoBtn.disabled = colorStack.length <= 1;
+  document.querySelectorAll(".palette-swatch").forEach(button => {
+    button.classList.toggle("active", button.dataset.color === activeColor);
+  });
+
+  historyList.innerHTML = "";
+  if (colorStack.length === 0) {
+    historyList.innerHTML = '<div class="history-empty">No colours yet.</div>';
+    return;
+  }
+  [...colorStack].reverse().forEach((color, index) => {
+    const item = document.createElement("div");
+    item.className = "history-item";
+    item.innerHTML = `<div class="history-color" style="--swatch:${color}"></div><strong>${color}</strong><small>${index === 0 ? "CURRENT COLOUR" : "HISTORY STATE " + (index + 1)}</small>`;
+    historyList.appendChild(item);
+  });
+}
+
+document.querySelectorAll(".palette-swatch").forEach(button => {
+  button.addEventListener("click", () => applyColor(button.dataset.color));
+});
+colorPicker.addEventListener("input", event => {
+  const color = event.target.value.toUpperCase();
+  hexInput.value = color.slice(1);
+});
+colorPicker.addEventListener("change", event => applyColor(event.target.value));
+applyHex.addEventListener("click", () => {
+  const color = normalizeHex(hexInput.value);
+  if (color) applyColor(color);
+  else showMessage("Enter a valid HEX code, for example 7357FF.", true);
+});
+hexInput.addEventListener("keydown", event => {
+  if (event.key === "Enter") applyHex.click();
+});
+undoBtn.addEventListener("click", undoColor);
+resetBtn.addEventListener("click", resetColors);
+
+render();
+
+  </script>
+</body>
+</html>
